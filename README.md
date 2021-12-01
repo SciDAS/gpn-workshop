@@ -1,28 +1,23 @@
 Doing Genomics in the Cloud: From Repository to Result
 ====
 
-Computational genomics has become a core toolkit in the study of biological systems at the molecular level.  To run genomics workflows, a researcher needs access to advanced computer systems including compute, storage, memory, and networks to move and mine huge genomics datasets.  The Cloud provides scalable compute solutions to run workflows.  In this workshop,  we will demonstrate how one can create a compute cluster in the Cloud using Kubernetes and run containerized genomics workflows.    The Cloud workflows will include pulling high-throughput DNA datasets from the NCBI-SRA data repository, performing reference genome mapping of SRA RNAseq datasets, and building a gene co-expression network.
+Computational genomics has become a core toolkit in the study of biological systems at the molecular level.  To run genomics workflows, a researcher needs access to advanced computer systems including compute, storage, memory, and networks to move and mine huge genomics datasets. The workflows will include pulling high-throughput DNA datasets from the NCBI-SRA data repository, performing reference genome mapping of SRA RNAseq datasets, and building a gene co-expression network.
 
 The Workshop:
 
 We will cover the complete deployment life cycle that enables scientific workflows to be run in the cloud. This includes:
- - Deployment/Access to a Kubernetes(K8s) cluster using Cisco Container Platform(CCP). 
+ - Accessing a Kubernetes(K8s) cluster via the command line.
  - Creating a persistent NFS server to store workflow data, then loading a Gene Expression Matrix(GEM) onto it.
  - Pulling genomic data from the NCBI's SRA database.
  - Deploying GEMmaker to create a Gene Expression Matrix
  - Deploying Knowledge Independent Network Construction(KINC), a genomic workflow, to the K8s cloud.
  - Downloading the resulting Gene Coexpression Network(GCN) from the NFS server, then visualizing the network.
 
-There will also be presentations and talks on cutting edge technology and methodology!
-
-Sessions 1 and 2 will be split up by a lunch break. Sessions do not overlap and have different concepts so try to stay for both!
-
-# Session 1
+# GEMmaker
 
 ## 0. Prerequisites
 
 The following software is necessary to participate in the demo:
- - Cisco Container Platform CLI
  - kubectl - Kubernetes CLI 
  - Nextflow - Workflow Manager
  - Java
@@ -50,7 +45,7 @@ Once the Jupyter notebook is provisioned, select *Terminal* from the menu to acc
 
 Finally, please clone this repo to a folder with persistent storage:
 
-`git clone https://github.com/cbmckni/gpn-workshop.git ~/Desktop/classroom/myfiles/gpn-workshop`
+`git clone https://github.com/SciDAS/scidas-workshop ~/Desktop/classroom/myfiles/scidas-workshop`
 
 ## 1. Access Kubernertes Cluster
 
@@ -242,51 +237,6 @@ SRR1058271
 SRR1058272
 ```
 
-### 4a. Pull Indexed Genome via Hybrid ICN (optional)
-
-**On your local VM....**
-
-Edit the file `hicn-client.yaml`:
-
-```
-metadata:
-  name: hicn-<YOUR_NAME>
-  labels:
-    app: hicn-<YOUR_NAME>
-spec:
-  containers:
-  - name: hicn-<YOUR_NAME>
-```
-```
-      persistentVolumeClaim:
-        claimName: task-pv-claim-<YOUR_NAME> # Enter valid PVC
-```
-
-Deploy the Hybrid IDN container:
-
-`kubectl create -f hicn-client.yaml`
-
-Get a terminal:
-
-`kubectl exec -ti hicn-<YOUR_NAME> -- /bin/bash`
-
-Run the setup script:
-
-`./run-setup`
-
-Create a folder for your workflow and input:
-
-`mkdir -p /workspace/gm-<YOUR_NAME>/input && cd /workspace/gm-<YOUR_NAME>/input`
-
-Download the indexed Arabidopsis genomes:
-
-`higet -O 3702.tgz - http://hicn-http-proxy/3702.tgz -P b001`
-
-Untar and move: 
-
-`tar -xvf 3702.tar && mv 3702/Arabidopsis_thaliana.TAIR10.kallisto.indexed .`
-
-
 ### 4b. Manually Index Genome (optional)
 
 **On the cluster....**
@@ -356,21 +306,14 @@ To view the resulting GEM:
 
 `cat /workspace/gm-<YOUR_NAME>/output/GEMs/GEMmaker.GEM.TPM.txt`
 
-That is all for session 1!
 
 
-
-**Enjoy your lunch! :)**
-
-
-
-# Session 2
+# KINC
 
 ## 0. Prerequisites
 
 The following software is necessary to participate in the demo:
  - helm
- - Cisco Container Platform CLI
  - kubectl - Kubernetes CLI 
  - Nextflow - Workflow Manager
  - Java
@@ -398,7 +341,7 @@ Once the Jupyter notebook is provisioned, select *Terminal* from the menu to acc
 
 Finally, please clone this repo to a folder with persistent storage:
 
-`git clone https://github.com/cbmckni/gpn-workshop.git ~/Desktop/classroom/myfiles/gpn-workshop`
+`git clone https://github.com/SciDAS/scidas-workshop ~/Desktop/classroom/myfiles/scidas-workshop`
 
 ## 1. Access Kubernertes Cluster
 
