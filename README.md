@@ -190,16 +190,6 @@ CORG is used by default in the configuation files, but to get biologically accur
 
 Here are the steps to download and index the Arabidopsis genome using Kallisto:
 
-**On the cluster....**
-
-Navigate to your input directory:
-
-`cd /workspace/gemmaker`
-
-Download the Arabidopsis genome for indexing:
-
-`curl ftp://ftp.ensemblgenomes.org/pub/plants/release-50/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
-
 **On your local VM....**
 
 Go to the repo:
@@ -226,8 +216,19 @@ Deploy the GEMMaker container to index the genome:
 
 `kubectl create -f kallisto.yaml`
 
-The pod will run non-interactively, so just confirm it deploys and runs with `kubectl get pods`
+Access the cluster using your kallisto container:
 
+`kubectl exec -ti kallisto-<YOUR_NAME> -- /bin/bash`
+
+**On the cluster....**
+
+Navigate to your input directory and download the Arabidopsis genome for indexing:
+
+`cd /workspace/gemmaker && curl ftp://ftp.ensemblgenomes.org/pub/plants/release-50/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
+
+Index the Genome:
+
+`kallisto index -i /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
 
 ## 2. Pull RNA Data from NCBI
 
