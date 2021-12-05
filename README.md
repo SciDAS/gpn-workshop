@@ -21,7 +21,25 @@ The following software is necessary to participate in the demo:
  - Java
  - Helm(optional) - Kubernetes Deployment Orchestrator
 
-To streamline the workshop, all software has been packaged into a virtual machine that has been replicated for each user. 
+To streamline the workshop, all software has been packaged into a virtual machine that has been replicated for each user **except for Helm**.
+
+### Install Helm
+
+`mkdir -p /Desktop/classroom/myfiles && cd ~/Desktop/classroom/myfiles`
+
+`wget https://get.helm.sh/helm-v3.6.0-linux-amd64.tar.gz`
+
+`tar -xvf helm-v3.6.0-linux-amd64.tar.gz`
+
+`sudo cp linux-amd64/helm /usr/local/bin`
+
+Add the `stable` repo:
+
+`helm repo add stable https://charts.helm.sh/stable`
+
+Update Helm's repositories(similar to `apt-get update)`:
+
+`helm repo update` 
 
 An additional requirement is access to the Kubernetes clusters that will be used for the workshop.
 
@@ -71,7 +89,7 @@ Create a folder `~/.kube`:
 
 Move the kubeconfig to your .kube folder: 
 
-`mv config.yaml ~/.kube`
+`mv config ~/.kube`
 
 Set permissions:
 
@@ -209,11 +227,9 @@ The pod will run non-interactively, so just confirm it deploys and runs with `ku
 
 ## 2. Pull RNA Data from NCBI
 
-Moving data into your K8s cluster is very important. We will cover 4 methods 
+Moving data into your K8s cluster is very important. We will cover 4 methods.
 
-### 2a. Use a Built-In Workflow Utility 
-
-Many workflows, such as GEMmaker, have a built in utility to pull input data. This utility requires a path on to a file on the cluster, containing a list of SRA IDs to be pulled.
+All use the following list of SRA IDs:
 
 **On the cluster....**
 
@@ -224,21 +240,34 @@ Create a folder for your workflow and input:
 Make a file in the same folder called `SRAs.txt` with the SRA IDs of 3 Arabidopsis samples:
 
 ```
-cat > /workspace/gemmaker/input/SRA_IDs.txt << EOL
+cat > /workspace/gemmaker/SRA_IDs.txt << EOL
 SRR1058270
 SRR1058271
 SRR1058272
+SRR1058273
+SRR1058274
+SRR1058275
+SRR1058276
 EOL
 ```
 
 Make sure it is formatted correctly!
 
 ```
-# cat /workspace/gemmaker/input/SRA_IDs.txt
+# cat /workspace/gemmaker/SRA_IDs.txt
 SRR1058270
 SRR1058271
 SRR1058272
+SRR1058273
+SRR1058274
+SRR1058275
+SRR1058276
 ```
+
+
+### 2a. Use a Built-In Workflow Utility 
+
+Many workflows, such as GEMmaker, have a built in utility to pull input data. This utility requires a path on to a file on the cluster containing a list of SRA IDs to be pulled.
 
 ### 2b. Use a Single-Container Deployment to Pull Files Sequentially(optional)
 
@@ -290,7 +319,7 @@ Initialize SRA-Tools:
 
 Then, pull the data using the list of SRA IDs:
 
-`cat SraAccList.txt | xargs fasterq-dump --split-files --outdir=/workspace/gemmaker/input`
+`while read id; do prefetch "$id" && fasterq-dump "$id"/"$id".sra --split-files -O /workspace/gemmaker/input/ --force; done < /workspace/gemmaker/SRA_IDs.txt `
 
 ### 2c. Use a Multi-Container StatefulSet to Pull Files in Parallel(optional)
 
@@ -304,11 +333,11 @@ Create a folder for your workflow and input:
 
 `mkdir -p /workspace/gemmaker/input && cd /workspace/gemmaker/input`
 
-[pull-sample-batch.sh]() is a script that gets the ordered index of a container and pulls the SRA ID at that line of the list.
+[pull-sample-batch.sh](https://github.com/SciDAS/scidas-workshop/blob/master/gemmaker/pull_sample.sh) is a script that gets the ordered index of a container and pulls the SRA ID at that line of the list.
 
 Download the script to the cluster:
 
-`cd /workspace/gemmaker/ && wget ` 
+`cd /workspace/gemmaker/ && wget https://raw.githubusercontent.com/SciDAS/scidas-workshop/master/gemmaker/pull_sample.sh` 
 
 **On your local VM....**
 
@@ -320,22 +349,22 @@ Edit the file `statefulset.yaml`:
 
 ```
 metadata:
-  name: sra-batch-cole
+  name: sra-batch-<YOUR_NAME>
   labels:
-    app: sra-batch-cole
+    app: sra-batch-<YOUR_NAME>
 spec:
-  serviceName: sra-batch-cole
+  serviceName: sra-batch-<YOUR_NAME>
   replicas: 7
   selector:
     matchLabels:
-      app: sra-batch-cole
+      app: sra-batch-<YOUR_NAME>
   template:
     metadata:
       labels:
-        app: sra-batch-cole
+        app: sra-batch-<YOUR_NAME>
     spec:
       containers:               
-      - name: sra-batch-cole
+      - name: sra-batch-<YOUR_NAME>
         image: ncbi/sra-tools
         command: [ "/bin/sh", "-c", "--" ]
         args: [ "cd" ]
@@ -383,83 +412,30 @@ The steps to pull the RNA sequences are essentially the same as in *1b* once the
 
 **On your local VM....**
 
-Edit the file `~/Desktop/classroom/myfiles/gpn-workshop/nextflow.config.gemmaker`:
+Edit the file `~/Desktop/classroom/myfiles/scidas-workshop/gemmaker/nextflow.config`.
+
+At the top, leave one of the following lines blank:
+
+For a remote run:
 
 ```
-profiles {
-  k8s {
-      k8s {
-          workDir = "/workspace/gm-<YOUR_NAME>/work"
-          launchDir = "/workspace/gm-<YOUR_NAME>"
-      }
-      params {
-        outdir = "/workspace/gm-<YOUR_NAME>/output"
+    /**
+     * SAMPLES
+     */
+    input = ""
+    skip_samples = ""
+    sras = "/workspace/gemmaker/SRA_IDs.txt"
 ```
 
-**On the cluster....**
-
-Create a folder for your workflow and input:
-
-`mkdir -p /workspace/gm-<YOUR_NAME>/input && cd /workspace/gm-<YOUR_NAME>/input`
-
-Make a file in the same folder called `SRAs.txt` with the SRA IDs of 3 Arabidopsis samples:
-
+For a local run:
 ```
-cat > /workspace/gm-<YOUR_NAME>/input/SRA_IDs.txt << EOL
-SRR1058270
-SRR1058271
-SRR1058272
-EOL
+    /**
+     * SAMPLES
+     */
+    input = "/workspace/gemmaker/input/*.fastq"
+    skip_samples = ""
+    sras = ""
 ```
-
-Make sure it is formatted correctly!
-
-```
-# cat /workspace/gm-<YOUR_NAME>/input/SRA_IDs.txt
-SRR1058270
-SRR1058271
-SRR1058272
-```
-
-### 4b. Manually Index Genome (optional)
-
-**On the cluster....**
-
-Navigate to your input directory:
-
-`cd /workspace/gm-<YOUR_NAME>/input`
-
-Download the Arabidopsis genome for indexing:
-
-`wget ftp://ftp.ensemblgenomes.org/pub/plants/release-50/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
-
-**On your local VM....**
-
-Go to the repo:
-
-`cd ~/Desktop/classroom/myfiles/gpn-workshop`
-
-Edit the file `gemmaker.yaml`:
-
-```
-metadata:
-  name: kallisto-<YOUR_NAME>
-  labels:
-    app: kallisto-<YOUR_NAME>
-spec:
-  containers:
-  - name: kallisto-<YOUR_NAME>
-```
-```
-      persistentVolumeClaim:
-        claimName: task-pv-claim-<YOUR_NAME> # Enter valid PVC
-```
-
-Deploy the GEMMaker container to index the genome:
-
-`kubectl create -f gemmaker.yaml`
-
-The pod will run non-interactively, so just confirm it deploys and runs with `kubectl get pods`
 
 **Switch tabs**
 
@@ -467,17 +443,17 @@ The pod will run non-interactively, so just confirm it deploys and runs with `ku
 
 **On your local VM's filesystem....**
 
-`cd ~/Desktop/classroom/myfiles/gpn-workshop`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/gemmaker`
 
 Deploy GEMMaker with:
 
 ```
-nextflow -C nextflow.config.gemmaker kuberun systemsgenetics/gemmaker -r dev -profile k8s -v task-pv-claim-<YOUR_NAME> --sras /workspace/gm-<YOUR_NAME>/input/SRA_IDs.txt
+nextflow -C nextflow.config kuberun systemsgenetics/gemmaker -profile k8s -v pvc-<YOUR_NAME>
 ```
 
-**If you followed steps 4a. or 4b. add the argument** 
+**If you followed step 1. add the argument** 
 
-`--kallisto_index_path /workspace/gm-<YOUR_NAME>/input/Arabidopsis_thaliana.TAIR10.kallisto.indexed`
+`--kallisto_index_path /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed`
 
 ## 6. View Output
  
@@ -485,114 +461,31 @@ nextflow -C nextflow.config.gemmaker kuberun systemsgenetics/gemmaker -r dev -pr
 
 To view the resulting GEM:
 
-`cat /workspace/gm-<YOUR_NAME>/output/GEMs/GEMmaker.GEM.TPM.txt`
+`cat /workspace/gemmaker/output/GEMs/GEMmaker.GEM.TPM.txt`
 
+**Copy the GEM to the KINC input folder for the next workflow(optional)**:
+
+`mkdir -p /workspace/kinc/input && cp /workspace/gemmaker/output/GEMs/GEMmaker.GEM.TPM.txt /workspace/kinc/input/Arabidopsis.emx.txt`
+
+Follow the next part to create and visualize a Gene Co-expression Network(GCN) from the GEM!
 
 
 # KINC
 
-## 0. Prerequisites
-
-The following software is necessary to participate in the demo:
- - helm
- - kubectl - Kubernetes CLI 
- - Nextflow - Workflow Manager
- - Java
- - Files/scripts from this repo.
-
-To streamline the workshop, all software has been packaged into a virtual machine that has been replicated for each user. 
-
-An additional requirement is access to the kubernetes clusters that will be used for the workshop.
-
-**If you do not have your CCP cluster credentials(kubeconfig) and access to your personal VM, please let us know.**
-
-### Access Praxis
-
-Navigate to [the Praxis portal](https://dcm.toolwire.com/alai/admin/login.jsp)
-
-Enter your credentials.
-
-Select the class *Running Scientific Workflows on Regional R&E Kubernetes Clusters Workshop*
-
-Select *Learning* at the upper right side of the menu bar.
-
-Select the lab session *Making Gene Networks with KINC: GEMs to GCNs*, when prompted start the live lab.
-
-Once the Jupyter notebook is provisioned, select *Terminal* from the menu to access a Bash terminal from within your VM! 
-
-Finally, please clone this repo to a folder with persistent storage:
-
-`git clone https://github.com/SciDAS/scidas-workshop ~/Desktop/classroom/myfiles/scidas-workshop`
-
-## 1. Access Kubernertes Cluster
-
-Download or copy/paste the kubeconfig you were provided to a file named `config`.
-
-Move the kubeconfig to your .kube folder: 
-
-`mv config.yaml ~/.kube`
-
-`chmod 600 ~/.kube/config`
-
-Confirm your cluster name:
-
-`kubectl config current-context`
-
-The output should match the name of your cluster.
-
-You now have access to your K8s cluster!
-
-Issue an API call to view current pods(containers) that are deployed:
-
-`kubectl get pods`
-
-**If you were not present for the first session:**
-
-Check that the `nfs` storage class exists:
-
-`kubectl get sc`
-
-Next, deploy a 50Gb Persistant Volume Claim(PVC) to the cluster:
-
-`cd ~/Desktop/classroom/myfiles/gpn-workshop`
-
-Edit the file and enter your name for your own PVC!
-
-```
-metadata:
-  name: task-pv-claim-<YOUR_NAME>
-```
-
-`kubectl create -f task-pv-claim.yaml`
-
-Check that the PVC was deployed successfully:
-
-`kubectl get pvc`
-
-**Everyone:**
-
-To view and manage files on the cluster:
-
-`nextflow kuberun login -v task-pv-claim-<YOUR_NAME>`
-
-Take note of the pod that gets deployed, use the name when you see **<POD_NAME>**
-
-**To continue, open a new tab with File -> New -> Terminal**
-
-## 2. Deploy KINC
+## 1. Configure KINC
 
 **On your local VM....**
 
 Go to the repo: 
 
-`cd ~/Desktop/classroom/myfiles/gpn-workshop`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop`
 
-Edit the file `nextflow.config`:
+Edit the file `nextflow.config` if needed:
 
 ```
 params {
     input {
-        dir = "/workspace/gcn-<YOUR_NAME>/input"
+        dir = "/workspace/kinc/input"
         emx_txt_files = "*.emx.txt"
         emx_files = "*.emx"
         ccm_files = "*.ccm"
@@ -600,42 +493,66 @@ params {
     }
 
     output {
-        dir = "/workspace/gcn-<YOUR_NAME>/output"
+        dir = "/workspace/kinc/output"
     }
 ```
 
-Load the input data onto the PVC:
+### 1a. Load the Input Dataset(optional)
 
-`kubectl exec <POD_NAME> -- bash -c "mkdir -p /workspace/gcn-<YOUR_NAME>"`
+**If you do not have an Arabidopsis GEM, you need to do this.**
 
-`kubectl cp "input" "<POD_NAME>:/workspace/gcn-<YOUR_NAME>"`
+There are 3 datasets/GEMs in the *scidas-workshop* `kinc` directory.
+
+ - Yeast
+ - Cervix
+ - Rice
+
+**On your local VM....**
+
+Go to the repo: 
+
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/kinc`
+
+Choose which one you want by copying the associated folder to `input`:
+
+`cp -r input-yeast/ input`
+`cp -r input-cervix/ input`
+`cp -r input-rice/ input`
+
+Use any already running pod mounted to your PVC to load the input data onto the PVC:
+
+`kubectl exec <POD_NAME> -- bash -c "mkdir -p /workspace/kinc"`
+
+`kubectl cp "input" "<POD_NAME>:/workspace/kinc"`
+
+## 2. Deploy KINC
 
 Deploy KINC using `nextflow-kuberun`:
 
-`nextflow kuberun -C nextflow.config systemsgenetics/kinc-nf -v task-pv-claim-<YOUR_NAME>`
+`nextflow -C nextflow.config kuberun systemsgenetics/kinc-nf -v pvc-<YOUR_NAME>`
 
 **The workflow should take about 10-15 minutes to execute.**
 
-## 3. Retreive and Visualize Gene Co-expression Network
+## 3. Retrieve and Visualize Gene Co-expression Network
 
 Copy the output of KINC from the PVC to your VM:
 
-`cd ~/Desktop/classroom/myfiles/gpn-workshop`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop`
 
 ```
 kubectl exec <POD_NAME> -- bash -c \
-"for f in \$(find /workspace/gcn-<YOUR_NAME>/output/Yeast -type l); do cp --remove-destination \$(readlink \$f) \$f; done"
+"for f in \$(find /workspace/kinc/output/ -type l); do cp --remove-destination \$(readlink \$f) \$f; done"
 ```
 
-`kubectl cp "<POD_NAME>:/workspace/gcn-<YOUR_NAME>/output/Yeast" "Yeast"`
+`kubectl cp "<POD_NAME>:/workspace/kinc/output/" "Yeast"`
 
 Open Cytoscape. (Applications -> Other -> Cytoscape)
 
 Go to your desktop and open a file browsing window, navigate to the output folder:
 
-`cd ~/Desktop/classroom/myfiles/gpn-workshop/Yeast`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/kinc/output`
 
-Finally, drag the file `Yeast.coexpnet.txt` from the file browser to Cytoscape!
+Finally, drag the file `<DATASET>.coexpnet.txt` from the file browser to Cytoscape!
 
 The network should now be visualized! 
 

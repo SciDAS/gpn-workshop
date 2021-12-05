@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: sra-batch-cole
+  name: sra-batch-<YOUR_NAME>
   labels:
-    app: sra-batch-cole
+    app: sra-batch-<YOUR_NAME>
 spec:
-  serviceName: sra-batch-cole
+  serviceName: sra-batch-<YOUR_NAME>
   replicas: 7
   selector:
     matchLabels:
-      app: sra-batch-cole
+      app: sra-batch-<YOUR_NAME>
   template:
     metadata:
       labels:
-        app: sra-batch-cole
+        app: sra-batch-<YOUR_NAME>
     spec:
       containers:               
-      - name: sra-batch-cole
+      - name: sra-batch-<YOUR_NAME>
         image: ncbi/sra-tools
         command: [ "/bin/sh", "-c", "--" ]
-        args: [ "tail -f /dev/null" ]
+        args: [ "cd /workspace/gemmaker && /workspace/gemmaker/pull-sample.sh /workspace/gemmaker/SRA_IDs.txt /workspace/gemmaker/input/" ]
         resources:
           requests:
             cpu: 1
@@ -34,4 +34,4 @@ spec:
       volumes:
         - name: sra-batch-pvc
           persistentVolumeClaim:
-            claimName: teach-compbio # Enter valid PVC
+            claimName: pvc-<YOUR_NAME> # Enter valid PVC

@@ -25,4 +25,4 @@ spec:
   volumes:
     - name: sra-tools-volume
       persistentVolumeClaim:
-        claimName: task-pv-claim-<YOUR_NAME> # Enter valid PVC
+        claimName: pvc-<YOUR_NAME> # Enter valid PVC
