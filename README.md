@@ -67,7 +67,7 @@ Finally, please clone this repo to a folder with persistent storage:
 
 Nautilus is the Kubernetes cluster that composes the [National Research Platform](https://nautilus.optiputer.net/). With nodes spread across the United States and a few international sites, Nautilus is an extremely useful resource for computational scientists. To join Nautilus:
 
-Create an account by logging in at 
+Create an account by [logging in](https://nautilus.optiputer.net/authConfig).
 
 You may use an affiliated campus email, or a Google email.
 
