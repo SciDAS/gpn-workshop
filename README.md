@@ -451,54 +451,63 @@ Right now, the supported protocols are:
 
 The steps to pull the RNA sequences are essentially the same as in *1b* once the SRA Tools container is deployed. To deploy an instance of DTP-Personal, clone the [repository](https://github.com/SciDAS/dtp-personal) and follow the [documentation](https://github.com/SciDAS/dtp-personal/blob/master/README.md).
 
-## 4. Configure GEMmaker 
+## 4. Configure/Deploy GEMmaker 
 
 **On your local VM....**
 
-Edit the file `~/Desktop/classroom/myfiles/scidas-workshop/gemmaker/nextflow.config`.
-
-At the top, leave one of the following lines blank:
+**If you followed step 1. and manually indexed the A. Thal. genome:** 
 
 For a remote run:
 
 ```
-    /**
-     * SAMPLES
-     */
-    input = ""
-    skip_samples = ""
-    sras = "/workspace/gemmaker/SRA_IDs.txt"
+nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
+   -profile k8s \
+   -v pvc-<YOUR_NAME> \
+  --pipeline kallisto \
+  --kallisto_index_path /workspace/gemmaker/input/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
+  --sras  /workspace/gemmaker/input/SRA_IDs.txt \
+  --output /workspace/gemmaker/output \
+  --max_cpus 4
 ```
 
 For a local run:
 ```
-    /**
-     * SAMPLES
-     */
-    input = "/workspace/gemmaker/input/*.fastq"
-    skip_samples = ""
-    sras = ""
+nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
+   -profile k8s \
+   -v pvc-<YOUR_NAME> \
+  --pipeline kallisto \
+  --kallisto_index_path /workspace/gemmaker/input/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
+  --input  /workspace/gemmaker/input/*.fastq \
+  --output /workspace/gemmaker/output \
+  --max_cpus 4
 ```
 
-**Switch tabs**
-
-## 5. Deploy GEMmaker
-
-**On your local VM's filesystem....**
-
-`cd ~/Desktop/classroom/myfiles/scidas-workshop/gemmaker`
-
-Deploy GEMMaker with:
+**If you did not, run with the CORG Genome**
 
 ```
-nextflow -C nextflow.config kuberun systemsgenetics/gemmaker -profile k8s -v pvc-<YOUR_NAME>
+nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
+   -profile k8s \
+   -v pvc-<YOUR_NAME> \
+  --pipeline kallisto \
+  --kallisto_index_path /workspace/projects/systemsgenetics/gemmaker/assets/demo/references/CORG.transcripts.Kallisto.indexed \
+  --sras  /workspace/gemmaker/input/SRA_IDs.txt \
+  --output /workspace/gemmaker/output \
+  --max_cpus 4
 ```
 
-**If you followed step 1. and manually indexed the A. Thal. genome, add the argument:** 
+For a local run:
+```
+nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
+   -profile k8s \
+   -v pvc-<YOUR_NAME> \
+  --pipeline kallisto \
+  --kallisto_index_path /workspace/projects/systemsgenetics/gemmaker/assets/demo/references/CORG.transcripts.Kallisto.indexed \
+  --input  /workspace/gemmaker/input/*.fastq \
+  --output /workspace/gemmaker/output \
+  --max_cpus 4
+```
 
-`--kallisto_index_path /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed`
-
-## 6. View Output
+## 5. View Output
  
 **After the workflow has completed, switch tabs to your cluster's filesystem**
 
