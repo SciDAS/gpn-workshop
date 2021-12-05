@@ -472,6 +472,8 @@ Follow the next part to create and visualize a Gene Co-expression Network(GCN) f
 
 # KINC
 
+[Knowledge Independent Network Construction](https://github.com/SystemsGenetics/KINC) is a genomic workflow that takes a Gene Expression Matrix(GEM) and generates a Gene Co-Expression Network(GCN). GCNs can be visualized and compared to discover novel gene interactions.
+
 ## 1. Configure KINC
 
 **On your local VM....**
@@ -530,8 +532,6 @@ Use any already running pod mounted to your PVC to load the input data onto the 
 Deploy KINC using `nextflow-kuberun`:
 
 `nextflow -C nextflow.config kuberun systemsgenetics/kinc-nf -v pvc-<YOUR_NAME>`
-
-**The workflow should take about 10-15 minutes to execute.**
 
 ## 3. Retrieve and Visualize Gene Co-expression Network
 
