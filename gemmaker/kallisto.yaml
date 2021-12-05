@@ -10,7 +10,7 @@ spec:
     imagePullPolicy: Always
     image: systemsgenetics/gemmaker
     command: [ "/bin/sh" ]
-    args: [ "-c", "cd /workspace/gemmaker/ && kallisto index -i /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz" ]
+    args: [ "-c", "tail -f /dev/null" ]
     resources:
       requests:
         cpu: 1
