@@ -107,6 +107,10 @@ Issue an API call to view current pods(containers) that are deployed within the 
 
 `kubectl get pods`
 
+If you are on Nautilus/PRP, be sure to switch to the *teach-compbio* namespace if you have not already(optional):
+
+`kubectl config set-context --current --namespace=teach-compbio`
+
 ## 2. Create Persistant Data Storage to Host Workflow Data
 
 Now it is time to provision a NFS server to store workflow data. We will streamline this process by using Helm. Helm is a Kubernetes package manager!
@@ -237,7 +241,7 @@ Create a folder for your workflow and input:
 
 `mkdir -p /workspace/gemmaker/input && cd /workspace/gemmaker/input`
 
-Make a file in the same folder called `SRAs.txt` with the SRA IDs of 3 Arabidopsis samples:
+Make a file in the same folder called `SRAs.txt` with the SRA IDs of 26 Arabidopsis samples:
 
 ```
 cat > /workspace/gemmaker/SRA_IDs.txt << EOL
@@ -248,6 +252,25 @@ SRR1058273
 SRR1058274
 SRR1058275
 SRR1058276
+SRR1058277
+SRR1058278
+SRR1058279
+SRR1058280
+SRR1058281
+SRR1058282
+SRR1058283
+SRR1058284
+SRR1058285
+SRR1058286
+SRR1058287
+SRR1058288
+SRR1058289
+SRR1058290
+SRR1058291
+SRR1058292
+SRR1058293
+SRR1058294
+SRR1058295
 EOL
 ```
 
@@ -262,6 +285,25 @@ SRR1058273
 SRR1058274
 SRR1058275
 SRR1058276
+SRR1058277
+SRR1058278
+SRR1058279
+SRR1058280
+SRR1058281
+SRR1058282
+SRR1058283
+SRR1058284
+SRR1058285
+SRR1058286
+SRR1058287
+SRR1058288
+SRR1058289
+SRR1058290
+SRR1058291
+SRR1058292
+SRR1058293
+SRR1058294
+SRR1058295
 ```
 
 
