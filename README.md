@@ -1,7 +1,7 @@
-Doing Genomics in the Cloud: From Repository to Result
+Doing Genomics in the Cloud: From RNA to Result
 ====
 
-Computational genomics has become a core toolkit in the study of biological systems at the molecular level.  To run genomics workflows, a researcher needs access to advanced computer systems including compute, storage, memory, and networks to move and mine huge genomics datasets. The workflows will include pulling high-throughput DNA datasets from the NCBI-SRA data repository, performing reference genome mapping of SRA RNAseq datasets, and building a gene co-expression network.
+Computational genomics has become a core toolkit in the study of biological systems at the molecular level.  To run genomics workflows, a researcher needs access to advanced computer systems including compute, storage, memory, and networks to move and mine huge genomics datasets. The workflows will include pulling high-throughput DNA datasets from the NCBI-SRA data repository, performing reference genome mapping of SRA RNAseq datasets, and building a gene co-expression network. 
 
 The Workshop:
 
@@ -11,7 +11,7 @@ We will cover the complete deployment life cycle that enables scientific workflo
  - Pulling genomic RNA data from the NCBI's SRA database.
  - Deploying GEMmaker on the K8s cluster to create a Gene Expression Matrix.
  - Using the output from the GEMmaker run with Knowledge Independent Network Construction(KINC), a genomic workflow, to the K8s cloud.
- - Downloading the resulting Gene Coexpression Network(GCN) from the NFS server, then visualizing the network.
+ - Downloading the resulting Gene Coexpression Network(GCN) from the Kubernetes cluster, then visualizing the network.
 
 ## 0. Prerequisites
 
