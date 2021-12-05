@@ -451,7 +451,7 @@ Deploy GEMMaker with:
 nextflow -C nextflow.config kuberun systemsgenetics/gemmaker -profile k8s -v pvc-<YOUR_NAME>
 ```
 
-**If you followed step 1. add the argument** 
+**If you followed step 1. and manually indexed the A. Thal. genome, add the argument:** 
 
 `--kallisto_index_path /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed`
 
