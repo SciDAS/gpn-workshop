@@ -455,6 +455,10 @@ The steps to pull the RNA sequences are essentially the same as in *1b* once the
 
 **On your local VM....**
 
+Go to the repo:
+
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/gemmaker`
+
 **If you followed step 1. and manually indexed the A. Thal. genome:** 
 
 For a remote run:
