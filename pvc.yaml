@@ -1,7 +1,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: pvc-cole
+  name: pvc-<YOUR_NAME>
 spec:
   storageClassName: rook-cephfs
   accessModes:
