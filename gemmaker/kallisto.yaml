@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: gm-<YOUR_NAME>
+  name: kallisto-cole
   labels:
-    app: gm-<YOUR_NAME>
+    app: kallisto-cole
 spec:
   containers:
-  - name: gm-<YOUR_NAME>
+  - name: kallisto-cole
     imagePullPolicy: Always
     image: systemsgenetics/gemmaker
     command: [ "/bin/sh" ]
-    args: [ "-c", "cd /workspace/gm-<YOUR_NAME>/input && kallisto index -i /workspace/gm-<YOUR_NAME>/Arabidopsis_thaliana.TAIR10.kallisto.indexed Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz" ]
+    args: [ "-c", "cd /workspace/gemmaker/input && kallisto index -i /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz" ]
     resources:
       requests:
         cpu: 1
@@ -25,4 +25,4 @@ spec:
   volumes:
     - name: gm-volume
       persistentVolumeClaim:
-        claimName: task-pv-claim-<YOUR_NAME> # Enter valid PVC
+        claimName: pvc-cole # Enter valid PVC

@@ -1,11 +1,11 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: task-pv-claim-<YOUR_NAME>
+  name: pvc-cole
 spec:
-  storageClassName: nfs
+  storageClassName: rook-cephfs
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 50Gi
+      storage: 300Gi

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sra-batch-cole
+  labels:
+    app: sra-batch-cole
+spec:
+  serviceName: sra-batch-cole
+  replicas: 7
+  selector:
+    matchLabels:
+      app: sra-batch-cole
+  template:
+    metadata:
+      labels:
+        app: sra-batch-cole
+    spec:
+      containers:               
+      - name: sra-batch-cole
+        image: ncbi/sra-tools
+        command: [ "/bin/sh", "-c", "--" ]
+        args: [ "tail -f /dev/null" ]
+        resources:
+          requests:
+            cpu: 1
+            memory: 4Gi
+          limits:
+            cpu: 1
+            memory: 4Gi
+        volumeMounts:
+        - name: sra-batch-pvc
+          mountPath: /workspace
+      restartPolicy: Always
+      volumes:
+        - name: sra-batch-pvc
+          persistentVolumeClaim:
+            claimName: teach-compbio # Enter valid PVC
