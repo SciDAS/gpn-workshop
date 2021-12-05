@@ -466,7 +466,7 @@ nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
   --pipeline kallisto \
   --kallisto_index_path /workspace/gemmaker/input/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
   --sras  /workspace/gemmaker/input/SRA_IDs.txt \
-  --output /workspace/gemmaker/output \
+  --outdir /workspace/gemmaker/output \
   --max_cpus 4
 ```
 
@@ -478,7 +478,7 @@ nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
   --pipeline kallisto \
   --kallisto_index_path /workspace/gemmaker/input/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
   --input  /workspace/gemmaker/input/*.fastq \
-  --output /workspace/gemmaker/output \
+  --outdir /workspace/gemmaker/output \
   --max_cpus 4
 ```
 
@@ -491,7 +491,7 @@ nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
   --pipeline kallisto \
   --kallisto_index_path /workspace/projects/systemsgenetics/gemmaker/assets/demo/references/CORG.transcripts.Kallisto.indexed \
   --sras  /workspace/gemmaker/input/SRA_IDs.txt \
-  --output /workspace/gemmaker/output \
+  --outdir /workspace/gemmaker/output \
   --max_cpus 4
 ```
 
@@ -503,7 +503,7 @@ nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
   --pipeline kallisto \
   --kallisto_index_path /workspace/projects/systemsgenetics/gemmaker/assets/demo/references/CORG.transcripts.Kallisto.indexed \
   --input  /workspace/gemmaker/input/*.fastq \
-  --output /workspace/gemmaker/output \
+  --outdir /workspace/gemmaker/output \
   --max_cpus 4
 ```
 
