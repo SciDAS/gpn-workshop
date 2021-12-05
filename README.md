@@ -194,11 +194,11 @@ Here are the steps to download and index the Arabidopsis genome using Kallisto:
 
 Navigate to your input directory:
 
-`cd /workspace/gemmaker/input`
+`cd /workspace/gemmaker`
 
 Download the Arabidopsis genome for indexing:
 
-`wget ftp://ftp.ensemblgenomes.org/pub/plants/release-50/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
+`curl ftp://ftp.ensemblgenomes.org/pub/plants/release-50/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
 
 **On your local VM....**
 
