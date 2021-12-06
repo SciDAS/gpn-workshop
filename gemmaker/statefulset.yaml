@@ -19,7 +19,7 @@ spec:
       - name: sra-batch-<YOUR_NAME>
         image: ncbi/sra-tools
         command: [ "/bin/sh", "-c", "--" ]
-        args: [ "cd /workspace/gemmaker && /workspace/gemmaker/pull-sample.sh /workspace/gemmaker/SRA_IDs.txt /workspace/gemmaker/input/" ]
+        args: [ "cd /workspace/gemmaker && /workspace/gemmaker/pull_sample.sh /workspace/gemmaker/SRA_IDs.txt /workspace/gemmaker/input/" ]
         resources:
           requests:
             cpu: 1
