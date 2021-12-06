@@ -590,13 +590,21 @@ Follow the next part to create and visualize a Gene Co-expression Network(GCN) f
 
 ## 1. Configure KINC
 
+Interact with the running DTP:
 
+`./interact dtp-<YOUR_NAME>`
+
+**On the cluster....**
+
+Make an input folder `/workspace/kinc`:
+
+`mkdir -p /workspace/kinc`
 
 **On your local VM....**
 
 Go to the repo: 
 
-`cd ~/Desktop/classroom/myfiles/scidas-workshop`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/kinc`
 
 Edit the file `nextflow.config` if needed:
 
@@ -660,7 +668,7 @@ kubectl exec <POD_NAME> -- bash -c \
 "for f in \$(find /workspace/kinc/output/ -type l); do cp --remove-destination \$(readlink \$f) \$f; done"
 ```
 
-`kubectl cp "<POD_NAME>:/workspace/kinc/output/" "Yeast"`
+`kubectl cp "<POD_NAME>:/workspace/kinc/output/" "output"`
 
 Open Cytoscape. (Applications -> Other -> Cytoscape)
 
