@@ -25,7 +25,7 @@ To streamline the workshop, all software has been packaged into a virtual machin
 
 ### Install Helm
 
-`mkdir -p /Desktop/classroom/myfiles && cd ~/Desktop/classroom/myfiles`
+`mkdir -p ~/Desktop/classroom/myfiles && cd ~/Desktop/classroom/myfiles`
 
 `wget https://get.helm.sh/helm-v3.6.0-linux-amd64.tar.gz`
 
@@ -59,9 +59,11 @@ Select the lab session *Accessing the Cloud through c-Light CCP/IKS Cluster*, wh
 
 Once the Jupyter notebook is provisioned, select *Terminal* from the menu to access a Bash terminal from within your VM! 
 
-Finally, please clone this repo to a folder with persistent storage:
+Finally, please clone the workshop repo and the dtp-personal repositories to a folder with persistent storage:
 
 `git clone https://github.com/SciDAS/scidas-workshop ~/Desktop/classroom/myfiles/scidas-workshop`
+
+`git clone https://github.com/SciDAS/dtp-personal.git ~/Desktop/classroom/myfiles/dtp-personal`
 
 ### Access Nautilus(optional)
 
@@ -161,6 +163,66 @@ Check that the PVC was deployed successfully:
 
 `kubectl get pvc`
 
+### 3. Start a Data Transfer Pod 
+
+To interact with data on the cluster, we will use the Data Transfer Pod(DTP) Utility
+
+The Data Tranfer Pod Utility is a tool developed to make it easy to move data in and out of a Kubernetes cluster, using a variety of protocols.
+
+Right now, the supported protocols are:
+
+ - [Google Cloud SDK](https://cloud.google.com/sdk) 
+ - [Globus Connect Personal](https://app.globus.org/)
+ - [iRODS](https://irods.org/)
+ - [Named-Data Networking(NDN)](https://named-data.net/)
+ - [Aspera CLI](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_3.2.0/featured_applications/aspera_cli.html)
+ - [Amazon Web Services](https://aws.amazon.com/cli/)
+ - [MinIO](https://min.io/)
+ - [NCBI's SRA Tools](https://github.com/ncbi/sra-tools)
+ - [Fast Data Transfer(FDT)](http://monalisa.cern.ch/FDT/)
+ - Local transfers(to/from the user's local machine)
+
+To start a DTP mounted to the new PVC:
+
+Go to the repo: 
+
+`cd ~/Desktop/classroom/myfiles/dtp-personal`
+
+Edit the file `helm/values.yaml` to set the correct PVC and enable the SRA Tools container:
+
+`nano helm/values.yaml`
+
+```
+ExistingPVC:
+  # If true, use existing PVC on local cluster.
+  Enabled: true
+  Name: pvc-<YOUR_NAME>
+  Path: /workspace
+```
+```
+# SRA Tools
+SRATools: 
+  Enabled: true 
+```
+
+Start DTP-Personal:
+
+`./start dtp-<YOUR_NAME>`
+
+Once started, interact with the running DTP:
+
+`./interact dtp-<YOUR_NAME>`
+
+Choose 1 to enter the base container.
+
+**This tab is now on your cluster's persistent filesystem.**
+
+**Create a new terminal tab with File -> New.**
+
+### 4. Grant Nextflow Permissions(optional)
+
+**In the new tab on your local machine's filesystem....**
+
 Give Nextflow the necessary permissions to deploy jobs to your K8s cluster:
 
 **This command only needs to be run once, and is not necessary on namespaces where Nextflow has already been run.**
@@ -169,14 +231,6 @@ Give Nextflow the necessary permissions to deploy jobs to your K8s cluster:
 kubectl create rolebinding default-edit --clusterrole=edit --serviceaccount=default:default 
 kubectl create rolebinding default-view --clusterrole=view --serviceaccount=default:default
 ```
-
-Finally, login to the PVC to get a shell, enabling you to view and manage files:
-
-`nextflow kuberun login -v pvc-<YOUR_NAME>`
-
-Take note of the pod that gets deployed, use the name when you see **<POD_NAME>**
-
-**This tab is now on your cluster's persistent filesystem.** 
 
 # GEMmaker
 
@@ -194,9 +248,9 @@ Here are the steps to download and index the Arabidopsis genome using Kallisto:
 
 Go to the repo:
 
-`cd ~/Desktop/classroom/myfiles/scidas-workshop`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/gemmaker`
 
-Edit the file `gemmaker.yaml`:
+Edit the file `kallisto.yaml`:
 
 ```
 metadata:
@@ -224,7 +278,7 @@ Access the cluster using your kallisto container:
 
 Navigate to your input directory and download the Arabidopsis genome for indexing:
 
-`cd /workspace/gemmaker && curl ftp://ftp.ensemblgenomes.org/pub/plants/release-50/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
+`mkdir -p /workspace/gemmaker && cd /workspace/gemmaker && wget ftp://ftp.ensemblgenomes.org/pub/plants/release-50/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz`
 
 Index the Genome:
 
@@ -318,7 +372,7 @@ Many workflows, such as GEMmaker, have a built in utility to pull input data. Th
 
 Go to the repo:
 
-`cd ~/Desktop/classroom/myfiles/scidas-workshop`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/gemmaker`
 
 Edit the file `sra-tools.yaml`:
 
@@ -348,13 +402,9 @@ Get a Bash session inside your pod:
 
 `kubectl exec -ti sra-tools-<YOUR_NAME> -- /bin/bash`
 
-Once inside the pod, navigate to the persistent directory mounted at `/workspace`:
+Make an input folder and enter `/workspace/gemmaker`:
 
-`cd /workspace`
-
-Make a folder and enter:
-
-`mkdir -p /workspace/gemmaker/input && cd /workspace/gemmaker/input`
+`mkdir -p /workspace/gemmaker/input && cd /workspace/gemmaker/`
 
 Initialize SRA-Tools:
 
@@ -372,9 +422,9 @@ To parallelize pulling data, we can create a StatefulSet with one container for 
 
 **On the cluster....**
 
-Create a folder for your workflow and input:
+Make an input folder and enter `/workspace/gemmaker`:
 
-`mkdir -p /workspace/gemmaker/input && cd /workspace/gemmaker/input`
+`mkdir -p /workspace/gemmaker/input && cd /workspace/gemmaker/`
 
 [pull-sample-batch.sh](https://github.com/SciDAS/scidas-workshop/blob/master/gemmaker/pull_sample.sh) is a script that gets the ordered index of a container and pulls the SRA ID at that line of the list.
 
@@ -386,7 +436,7 @@ Download the script to the cluster:
 
 Go to the repo:
 
-`cd ~/Desktop/classroom/myfiles/scidas-workshop`
+`cd ~/Desktop/classroom/myfiles/scidas-workshop/gemmaker`
 
 Edit the file `statefulset.yaml`:
 
@@ -449,7 +499,15 @@ Right now, the supported protocols are:
  - [Fast Data Transfer(FDT)](http://monalisa.cern.ch/FDT/)
  - Local transfers(to/from the user's local machine)
 
-The steps to pull the RNA sequences are essentially the same as in *1b* once the SRA Tools container is deployed. To deploy an instance of DTP-Personal, clone the [repository](https://github.com/SciDAS/dtp-personal) and follow the [documentation](https://github.com/SciDAS/dtp-personal/blob/master/README.md).
+The steps to pull the RNA sequences are essentially the same as in *1b* once the SRA Tools container is deployed. To deploy an instance of DTP-Personal, clone the [repository](https://github.com/SciDAS/dtp-personal) and follow the instructions above.
+
+Interact with the running DTP:
+
+`./interact dtp-<YOUR_NAME>`
+
+Choose 2 to enter the sra-tools container.
+
+The steps to pull the RNA sequences are essentially the same as in *1b* once the SRA Tools container is accessed.
 
 ## 4. Configure/Deploy GEMmaker 
 
@@ -468,7 +526,7 @@ nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
    -profile k8s \
    -v pvc-<YOUR_NAME> \
   --pipeline kallisto \
-  --kallisto_index_path /workspace/gemmaker/input/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
+  --kallisto_index_path /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
   --sras  /workspace/gemmaker/input/SRA_IDs.txt \
   --outdir /workspace/gemmaker/output \
   --max_cpus 4
@@ -480,7 +538,7 @@ nextflow -C nextflow.config kuberun systemsgenetics/gemmaker \
    -profile k8s \
    -v pvc-<YOUR_NAME> \
   --pipeline kallisto \
-  --kallisto_index_path /workspace/gemmaker/input/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
+  --kallisto_index_path /workspace/gemmaker/Arabidopsis_thaliana.TAIR10.kallisto.indexed \
   --input  /workspace/gemmaker/input/*.fastq \
   --outdir /workspace/gemmaker/output \
   --max_cpus 4
@@ -531,6 +589,8 @@ Follow the next part to create and visualize a Gene Co-expression Network(GCN) f
 [Knowledge Independent Network Construction](https://github.com/SystemsGenetics/KINC) is a genomic workflow that takes a Gene Expression Matrix(GEM) and generates a Gene Co-Expression Network(GCN). GCNs can be visualized and compared to discover novel gene interactions.
 
 ## 1. Configure KINC
+
+
 
 **On your local VM....**
 
