@@ -13,4 +13,4 @@ ID=$(sed "${INDEX}q;d" $1)
 echo ${ID}
 
 # Pull SRA ID
-prefetch ${ID} && fasterq-dump ${ID}/${ID}.sra --split-files -O /workspace/gemmaker/input/ --force
+prefetch ${ID} && fasterq-dump ${ID}/${ID}.sra --split-files -O $2 --force
